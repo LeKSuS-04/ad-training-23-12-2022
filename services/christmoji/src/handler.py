@@ -5,11 +5,12 @@ from utils import get_unused_emojies, add_decoration, random_string
 
 ACTIONS_PROMPT = '''
 =***= What do you want to do? =***=
-1. Create new tree
-2. Add decorations to existing tree
-3. List undecorated trees
-4. View presents under the tree
-5. Exit
+1. 🆕 Create new tree
+2. 🎀 Add decorations to existing tree
+3. 🌲 List undecorated trees
+4. 🎄 List decorated trees
+5. 🎁 View presents under the tree
+6. 👋 Exit
 > '''
 
 EMPTY_TREE = r'''
@@ -62,13 +63,13 @@ class ChristmojiHandler:
                 return int(client_choice)
             else:
                 await self.send_message(
-                    f'Ho-ho-ho, bad option! Expected number between {min_option} and {max_option}, try again:\n'
+                    f'Ho-ho-ho 🎅, bad option! Expected number between {min_option} and {max_option}, try again:\n'
                 )
 
     async def create_tree(self):
         if self.storage.size('undecorated_trees') > 10:
             await self.send_message(
-                'There are a lot of undecorated trees! Go check them out!'
+                'There are a lot of undecorated trees! Go check them out 😃!'
             )
             return
 
@@ -79,18 +80,18 @@ class ChristmojiHandler:
         await self.send_message(f'Done! Your tree id is {tree_id}!\n')
 
     async def add_decorations(self):
-        tree_id = await self.read_with_message('Which tree you want to decorate?: ')
+        tree_id = await self.read_with_message('Which tree you want to decorate 🌲🌳🌴?: ')
         try:
             tree = self.storage.get('undecorated_trees', tree_id)
             if not tree:
-                await self.send_message('Tree not found :(')
+                await self.send_message('Tree not found 🔎 \n')
                 return
         except StorageException:
-            await self.send_message('Something went wrong...\n')
+            await self.send_message('Something went wrong 🥴\n')
             return
 
         emojies = get_unused_emojies(tree, 5)
-        prompt = 'Which emoji do you want to use?\n'
+        prompt = 'Which emoji do you want to use 😋?\n'
         for i, emoji in enumerate(emojies):
             prompt += f'{i+1}. {emoji}\n'
         prompt += '> '
@@ -105,7 +106,7 @@ class ChristmojiHandler:
             self.storage.store('decorated_trees', tree_id, tree)
 
         want_present = await self.read_with_message(
-            'Do you want to leave a present? (y/n): '
+            'Do you want to leave a present 🎁? (y/n): '
         )
         if want_present.lower() not in ['y', 'yes']:
             await self.send_message(f'Ok! Take a look at the tree:\n{tree}')
@@ -114,14 +115,14 @@ class ChristmojiHandler:
         present = await self.read_with_message('Enter text of your present: ')
         presents_collection = f'{tree_id}_presents'
         self.storage.store(presents_collection, emoji, present)
-        await self.send_message('Thank you! Your present is stored!\n')
+        await self.send_message('Thank you! Your present is stored 🫙!\n')
 
     async def list_undecorated(self):
         undecorated_trees = self.storage.list('undecorated_trees')
         if len(undecorated_trees) == 0:
-            message = 'There are no undecorated trees!\n'
+            message = 'There are no undecorated trees 😨!\n'
         else:
-            message = "Here's the list of undecorated trees ids:\n"
+            message = "Here's the list of undecorated trees ids 🌲:\n"
             for tree_id in undecorated_trees:
                 message += f'- {tree_id}\n'
         await self.send_message(message)
@@ -129,9 +130,9 @@ class ChristmojiHandler:
     async def list_decorated(self):
         decorated_trees = self.storage.list('undecorated_trees')
         if len(decorated_trees) == 0:
-            message = 'There are no decorated trees!\n'
+            message = 'There are no decorated trees 😨!\n'
         else:
-            message = "Here's the list of decorated trees' ids:\n"
+            message = "Here's the list of decorated trees' ids 🎄:\n"
             for tree_id in decorated_trees:
                 message += f'- {tree_id}\n'
         await self.send_message(message)
@@ -143,7 +144,7 @@ class ChristmojiHandler:
         try:
             real_password = self.storage.get('passwords', tree_id)
             if real_password != password:
-                await self.send_message('Wrong password\n')
+                await self.send_message('Wrong password ⛔!\n')
                 return
 
             presents_collection = f'{tree_id}_presents'
@@ -155,10 +156,10 @@ class ChristmojiHandler:
             await self.send_message(message)
 
         except StorageException:
-            await self.send_message('Something went wrong... Sorry :(\n')
+            await self.send_message('Something went wrong 🥴\n')
 
     async def loop(self):
-        await self.send_message('Hello\n')
+        await self.send_message('*** ⛄ Hello ⛄ ***\n')
 
         while True:
             action = await self.prompt_for_choice(ACTIONS_PROMPT, 1, 5)
