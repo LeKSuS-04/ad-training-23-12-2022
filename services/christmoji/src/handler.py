@@ -162,7 +162,7 @@ class ChristmojiHandler:
         await self.send_message('*** ⛄ Hello ⛄ ***\n')
 
         while True:
-            action = await self.prompt_for_choice(ACTIONS_PROMPT, 1, 5)
+            action = await self.prompt_for_choice(ACTIONS_PROMPT, 1, 6)
             match action:
                 case 1:
                     await self.create_tree()
