@@ -9,8 +9,9 @@ ACTIONS_PROMPT = '''
 2. 🎀 Add decorations to existing tree
 3. 🌲 List undecorated trees
 4. 🎄 List decorated trees
-5. 🎁 View presents under the tree
-6. 👋 Exit
+5. 🤩 View tree
+6. 🎁 View presents under the tree
+7. 👋 Exit
 > '''
 
 EMPTY_TREE = r'''
@@ -67,12 +68,6 @@ class ChristmojiHandler:
                 )
 
     async def create_tree(self):
-        if self.storage.size('undecorated_trees') > 10:
-            await self.send_message(
-                'There are a lot of undecorated trees! Go check them out 😃!'
-            )
-            return
-
         tree_id = random_string(24)
         password = await self.read_with_message('Enter password to your tree: ')
         self.storage.store('passwords', tree_id, password)
@@ -83,9 +78,6 @@ class ChristmojiHandler:
         tree_id = await self.read_with_message('Which tree you want to decorate 🌲🌳🌴?: ')
         try:
             tree = self.storage.get('undecorated_trees', tree_id)
-            if not tree:
-                await self.send_message('Tree not found 🔎 \n')
-                return
         except StorageException:
             await self.send_message('Something went wrong 🥴\n')
             return
@@ -109,7 +101,7 @@ class ChristmojiHandler:
             'Do you want to leave a present 🎁? (y/n): '
         )
         if want_present.lower() not in ['y', 'yes']:
-            await self.send_message(f'Ok! Take a look at the tree:\n{tree}')
+            await self.send_message(f'Ok!\n')
             return
 
         present = await self.read_with_message('Enter text of your present: ')
@@ -122,13 +114,13 @@ class ChristmojiHandler:
         if len(undecorated_trees) == 0:
             message = 'There are no undecorated trees 😨!\n'
         else:
-            message = "Here's the list of undecorated trees ids 🌲:\n"
+            message = "Here's the list of undecorated trees' ids 🌲:\n"
             for tree_id in undecorated_trees:
                 message += f'- {tree_id}\n'
         await self.send_message(message)
 
     async def list_decorated(self):
-        decorated_trees = self.storage.list('undecorated_trees')
+        decorated_trees = self.storage.list('decorated_trees')
         if len(decorated_trees) == 0:
             message = 'There are no decorated trees 😨!\n'
         else:
@@ -136,6 +128,19 @@ class ChristmojiHandler:
             for tree_id in decorated_trees:
                 message += f'- {tree_id}\n'
         await self.send_message(message)
+
+    async def view_tree(self):
+        tree_id = await self.read_with_message('Enter tree id: ')
+        try:
+            tree = self.storage.get('undecorated_trees', tree_id)
+        except StorageException:
+            try:
+                tree = self.storage.get('decorated_trees', tree_id)
+            except StorageException:
+                await self.send_message('Tree not found 🔍\n')
+                return
+
+        await self.send_message(f'{tree}\n')
 
     async def view_presents(self):
         tree_id = await self.read_with_message('Enter tree id: ')
@@ -149,10 +154,13 @@ class ChristmojiHandler:
 
             presents_collection = f'{tree_id}_presents'
             present_keys = self.storage.list(presents_collection)
-            message = "Here are your presents:\n"
-            for present_key in present_keys:
-                present = self.storage.get(presents_collection, present_key)
-                message += f'- ({present_key}): {present}\n'
+            if len(present_keys) == 0:
+                message = 'There are no present under your tree 😭!\n'
+            else:
+                message = "Here are your presents:\n"
+                for present_key in present_keys:
+                    present = self.storage.get(presents_collection, present_key)
+                    message += f'- ({present_key}): {present}\n'
             await self.send_message(message)
 
         except StorageException:
@@ -162,7 +170,7 @@ class ChristmojiHandler:
         await self.send_message('*** ⛄ Hello ⛄ ***\n')
 
         while True:
-            action = await self.prompt_for_choice(ACTIONS_PROMPT, 1, 6)
+            action = await self.prompt_for_choice(ACTIONS_PROMPT, 1, 7)
             match action:
                 case 1:
                     await self.create_tree()
@@ -173,8 +181,10 @@ class ChristmojiHandler:
                 case 4:
                     await self.list_decorated()
                 case 5:
-                    await self.view_presents()
+                    await self.view_tree()
                 case 6:
+                    await self.view_presents()
+                case 7:
                     break
 
         await self.send_message('Bye!\n')

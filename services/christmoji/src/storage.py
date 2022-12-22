@@ -45,6 +45,9 @@ class FileSystemStorage(AbstractStorage):
         (self.base / collection / key).unlink()
 
     def get(self, collection: str, key: str) -> str:
+        if key == '' or '..' in key or '%' in key:
+            raise StorageException()
+
         try:
             proc = subprocess.run(
                 ['curl', f'file://{str(self.base / collection / key)}'],
