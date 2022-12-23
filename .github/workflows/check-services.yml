@@ -37,6 +37,7 @@ jobs:
         service:
           - christmoji
           - gingerbreach
+          - sh_elf
 
     steps:
     - uses: actions/checkout@v2
