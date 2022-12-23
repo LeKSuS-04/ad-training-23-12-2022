@@ -1,0 +1,25 @@
+version: "2.4"
+
+services:
+  gingerbreach:
+    restart: unless-stopped
+    build: ./src/
+    pids_limit: 256
+    mem_limit: 64M
+    cpus: 0.5
+    depends_on:
+      - mongo
+    environment:
+      MONGO_USER: mongo
+      MONGO_PASSWORD: p4ssw0rd
+    ports:
+      - 3000:8080
+
+  mongo:
+    restart: unless-stopped
+    image: mongo:latest
+    volumes:
+      - ./mongo:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: p4ssw0rd
