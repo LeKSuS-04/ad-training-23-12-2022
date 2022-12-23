@@ -3,6 +3,6 @@ RUN apt-get update && apt-get install libpq-dev socat sudo postgresql-client -yq
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY ./src/* .
+COPY ./src/* ./
 
 CMD ["/app/server.sh"]
