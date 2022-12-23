@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 from checklib import *
 
 
@@ -20,7 +20,7 @@ class CheckMachine:
     def logout(self):
         self.session.headers.pop('Authorization')
 
-    def me(self, fail_status: Status = Status.MUMBLE) -> None | dict[str, Any]:
+    def me(self, fail_status: Status = Status.MUMBLE) -> Union[None, dict[str, Any]]:
         r = self.session.get(f'{self.url}/auth/me')
         self.c.assert_eq(r.status_code, 200, 'Unable to get info about current user', fail_status)
         return r.json().get('user')
