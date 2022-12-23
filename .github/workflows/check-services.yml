@@ -36,6 +36,7 @@ jobs:
       matrix:
         service:
           - christmoji
+          - gingerbreach
 
     steps:
     - uses: actions/checkout@v2
