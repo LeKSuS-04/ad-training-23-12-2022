@@ -1,0 +1,26 @@
+version: "2.4"
+
+services:
+  sh_elf:
+    restart: unless-stopped
+    build: .
+    pids_limit: 1024
+    mem_limit: 64M
+    cpus: 1
+    environment:
+      - POSTGRES=postgres://elf:on_the_shelf@postgres:5432/sh_elf
+    ports:
+      - 5555:5555
+    depends_on:
+      - postgres
+
+  postgres:
+    build: src/db/
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: elf
+      POSTGRES_DB: sh_elf
+      POSTGRES_PASSWORD: on_the_shelf
+      PGDATA: /data/postgres/data
+    volumes:
+       - ./postgres:/data/postgres
